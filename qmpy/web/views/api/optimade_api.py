@@ -53,7 +53,8 @@ class OptimadePagination(LimitOffsetPagination):
                  ("query", {"representation": representation}),
                  ("api_version", "1.0"),
                  ("time_stamp", time_stamp), 
-                 ("data_returned", min(self.get_limit(request), self.count)),
+                 ("data_returned", min(self.get_limit(request), 
+                                       self.count-self.get_offset(request))),
                  ("data_available", self.count),
                  ("more_data_available", (self.get_next_link() != None) or \
                                          (self.get_previous_link() != None))
@@ -91,10 +92,15 @@ class OptimadeStructureList(generics.ListAPIView):
         if not filters:
             return fes
 
+        # shortcut to get all stable phases
+        filters = filters.replace('stability=0', 'stability<=0')
+
         filters = filters.replace('&', ' AND ')
         filters = filters.replace('|', ' OR ')
         filters = filters.replace('~', ' NOT ')
         q = query_to_Q(filters)
+        if not q:
+            return [] 
         fes = fes.filter(q)
 
         return fes

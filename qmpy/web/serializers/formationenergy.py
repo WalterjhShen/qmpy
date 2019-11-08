@@ -23,6 +23,7 @@ class FormationEnergySerializer(QueryFieldsMixin, serializers.ModelSerializer):
     ntypes = serializers.SerializerMethodField()
     natoms = serializers.SerializerMethodField()
 
+    stability = serializers.SerializerMethodField()
     band_gap = serializers.SerializerMethodField()
 
     def get_name(self, formationenergy):
@@ -32,7 +33,10 @@ class FormationEnergySerializer(QueryFieldsMixin, serializers.ModelSerializer):
         return formationenergy.entry.id
 
     def get_duplicate_entry_id(self, formationenergy):
-        return formationenergy.entry.duplicate_of.id
+        if formationenergy.entry.duplicate_of:
+            return formationenergy.entry.duplicate_of.id
+        else:
+            return
 
     def get_calculation_id(self, formationenergy):
         return formationenergy.calculation.id
@@ -59,10 +63,10 @@ class FormationEnergySerializer(QueryFieldsMixin, serializers.ModelSerializer):
         return formationenergy.composition.generic
     
     def get_spacegroup(self, formationenergy):
-        if formationenergy.calculation.output: 
+        try:
             return formationenergy.calculation.output.spacegroup.hm
-        else:
-            return 
+        except AttributeError:
+            return
 
     def get_prototype(self, formationenergy):
         if formationenergy.entry.prototype: 
@@ -100,6 +104,12 @@ class FormationEnergySerializer(QueryFieldsMixin, serializers.ModelSerializer):
 
     def get_natoms(self, formationenergy):
         return formationenergy.entry.natoms
+
+    def get_stability(self, formationenergy):
+        if formationenergy.stability is not None:
+            return max(formationenergy.stability, 0.0)
+        else:
+            return
 
     def get_band_gap(self, formationenergy):
         return formationenergy.calculation.band_gap

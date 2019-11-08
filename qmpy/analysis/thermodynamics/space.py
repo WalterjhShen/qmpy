@@ -2,7 +2,7 @@
 
 import networkx as nx
 from scipy.spatial import ConvexHull
-import matplotlib.pylab as plt
+import matplotlib.pyplot as plt
 import logging
 
 from django.db import transaction
@@ -1021,10 +1021,19 @@ class PhaseSpace(object):
             p.stability = p.energy - stable.energy
         else:
             phases = list(self.phase_dict.values())
-            #try:
-            phases.remove(p)
-            #except ValueError:
-            #    pass
+            # < Mohan
+            # Add Error Handling for phase.remove(p)
+            # Old Code:
+            # phases.remove(p)
+            # New Code:
+            try:
+                phases.remove(p)
+            except ValueError:
+                import copy
+                _ps_dict = copy.deepcopy(self.phase_dict)
+                _ps_dict.pop(p.name, None)
+                phases = list(_ps_dict.values())
+            # Mohan >
             energy, gclp_phases = self.gclp(p.unit_comp, phases=phases)
             ##print p, energy, gclp_phases
             #vh

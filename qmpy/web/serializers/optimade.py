@@ -53,7 +53,10 @@ class OptimadeStructureSerializer(QueryFieldsMixin, serializers.ModelSerializer)
         return formationenergy.calculation.id
     
     def get__oqmd_spacegroup(self, formationenergy):
-        return formationenergy.calculation.output.spacegroup.hm
+        try:
+            return formationenergy.calculation.output.spacegroup.hm
+        except AttributeError:
+            return
 
     def get__oqmd_prototype(self, formationenergy):
         try:
@@ -90,7 +93,10 @@ class OptimadeStructureSerializer(QueryFieldsMixin, serializers.ModelSerializer)
         return formationenergy.delta_e
 
     def get__oqmd_stability(self, formationenergy):
-        return formationenergy.stability
+        if formationenergy.stability is not None:
+            return max(formationenergy.stability, 0.0)
+        else:
+            return
 
     class Meta:
         model = FormationEnergy

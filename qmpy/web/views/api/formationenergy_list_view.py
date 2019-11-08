@@ -49,7 +49,8 @@ class QmpyPagination(LimitOffsetPagination):
                  ("query", {"representation": representation}),
                  ("api_version", "1.0"),
                  ("time_stamp", time_stamp), 
-                 ("data_returned", min(self.get_limit(request), self.count)),
+                 ("data_returned", min(self.get_limit(request), 
+                                       self.count-self.get_offset(request))),
                  ("data_available", self.count),
                  ('comments',page_data["comments"]),
                  ('query_tree',page_data["query_tree"]),
@@ -225,6 +226,9 @@ class FormationEnergyList(generics.ListAPIView):
 
         if not filters:
             return fes
+
+        # shortcut to get all stable phases
+        filters = filters.replace('stability=0', 'stability<=0')
 
         # replace'&' ,'|' and '~'  to 'AND', 'OR' and 'NOT', respectively
         filters = filters.replace('&', ' AND ')
