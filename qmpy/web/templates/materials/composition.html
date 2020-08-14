@@ -178,16 +178,18 @@ function openWindow() {
     <th>Stability [eV/atom]</th>
     <th>Prototype</th>
     <th># of atoms</th>
+    <th>Projects</th>
+    <th>Finish Time</th>
     <th>Reference</th>
   </tr>
 </thead>
 
 <tbody>
-  {% for fe in results %}
+  {% for fe, pro, ftime in results_project %}
   <tr class=clickableRow href="/materials/entry/{{ fe.entry.id }}">
     <td><a href="/materials/entry/{{ fe.entry.id }}" target="_blank">{{ fe.entry.id  }}</a></td>
     <td>{{ fe.entry.html | safe }}</td>
-    <td>{{ fe.entry.structure.spacegroup.symbol }}</td>
+    <td>{{ fe.calculation.output.spacegroup.symbol }}</td>
     <td>{{ fe.delta_e |floatformat:-3 }}</td>
     {% if fe.stability < 0 %}
     	<td>{{ 0 }}</td>
@@ -195,8 +197,47 @@ function openWindow() {
     	<td>{{ fe.stability |floatformat:-3 }}</td>
     {% endif %}
     <td>{{ fe.entry.prototype.name }}</td>
-    <td>{{ fe.entry.natoms }}</td>
-    <td>{{ fe.entry.reference.citation }}</td>
+    <td>{{ fe.calculation.output.natoms }}</td>
+    <td>{{ pro }}</td>
+    <td width="8%">{{ ftime |date:"M Y" }}</td>
+    <td width="25%">{{ fe.entry.reference.citation }}</td>
+  </tr>
+  {% endfor %}
+</tbody>
+</table>
+</div>
+
+{% endif %}
+
+{% if running %}
+<div style="padding-top:20px;float:left">
+<h2> Compounds not completed at this composition </h2>
+<h3> (running, failed, held) </h3>
+<table>
+<thead>
+  <tr>
+    <th>ID</th>
+    <th>Composition</th>
+    <th>Spacegroup</th>
+    <th>Prototype</th>
+    <th># of atoms</th>
+    <th>Projects</th>
+    <th>Create Time</th>
+    <th>Reference</th>
+  </tr>
+</thead>
+
+<tbody>
+  {% for entry, pro, ctime in running %}
+  <tr class=clickableRow href="/materials/entry/{{ entry.id }}">
+    <td><a href="/materials/entry/{{ entry.id }}" target="_blank">{{ entry.id  }}</a></td>
+    <td>{{ entry.html | safe }}</td>
+    <td>{{ entry.input.spacegroup.symbol }}</td>
+    <td>{{ entry.prototype.name }}</td>
+    <td>{{ entry.input.natoms }}</td>
+    <td>{{ pro }}</td>
+    <td>{{ ctime |date:"M Y" }}</td>
+    <td>{{ entry.reference.citation }}</td>
   </tr>
   {% endfor %}
 </tbody>
